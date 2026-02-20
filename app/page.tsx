@@ -7,7 +7,7 @@ export default function HomePage() {
 
       <div className="row">
         <Link className="button" href="/captions">
-          Login to Rate Captions
+          Rate Captions
         </Link>
       </div>
     </main>

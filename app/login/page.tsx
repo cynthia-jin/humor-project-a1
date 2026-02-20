@@ -29,7 +29,7 @@ export default function LoginPage() {
       <div className={styles.card}>
         <h1 className={styles.title}>Login</h1>
         <p className={styles.subtitle}>
-          Sign in with Google to view themes page.
+          Sign in with Google.
         </p>
 
         <button

@@ -6,15 +6,16 @@ import { voteCaption } from "./vote-action";
 type Caption = {
   id: string;
   content: string | null;
-  like_count: number;
-  image: { url: string | null }[] | null;
+  image_id: string;
 };
 
 export default function VoteButtons({
   captions,
+  imageUrlById,
   initialVoteMap,
 }: {
   captions: Caption[];
+  imageUrlById: Record<string, string | null>;
   initialVoteMap: Record<string, 1 | -1>;
 }) {
   const [voteMap, setVoteMap] = useState<Record<string, 1 | -1>>(initialVoteMap);
@@ -72,6 +73,8 @@ export default function VoteButtons({
     return <p className="muted">No captions to rate.</p>;
   }
 
+  const imageUrl = imageUrlById[current.image_id] ?? null;
+
   const upClass = currentVote === 1 ? "button secondary" : "button";
   const downClass = currentVote === -1 ? "button secondary" : "button";
 
@@ -91,7 +94,7 @@ export default function VoteButtons({
       {/* header */}
       <div className="muted" style={{ display: "flex", justifyContent: "space-between" }}>
         <span>{progressText}</span>
-        <span>{Object.keys(voteMap).length ? "" : ""}</span>
+        <span />
       </div>
 
       {/* BIG IMAGE */}
@@ -106,10 +109,10 @@ export default function VoteButtons({
           placeItems: "center",
         }}
       >
-        {current.image?.[0]?.url ? (
+        {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={current.image?.[0]?.url}
+            src={imageUrl}
             alt="caption"
             style={{
               width: "100%",
@@ -153,12 +156,13 @@ export default function VoteButtons({
 
       {/* status */}
       <div className="muted" style={{ textAlign: "center" }}>
-        {currentVote === 1
+        {msg
+          ? msg
+          : currentVote === 1
           ? "You upvoted this."
           : currentVote === -1
           ? "You downvoted this."
           : "You haven’t voted yet."}
-        {msg ? ` • ${msg}` : ""}
       </div>
     </div>
   );

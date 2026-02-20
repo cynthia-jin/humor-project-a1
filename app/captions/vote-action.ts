@@ -27,10 +27,9 @@ export async function voteCaption(captionId: string, voteValue: 1 | -1) {
     profile_id: profileId,
     caption_id: captionId,
     vote_value: voteValue,
+    created_datetime_utc: now,     // ✅ ALWAYS set
     modified_datetime_utc: now,
   };
-
-  if (!existing) payload.created_datetime_utc = now;
 
   const { error } = await supabase
     .from("caption_votes")

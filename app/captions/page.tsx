@@ -8,8 +8,12 @@ export const dynamic = "force-dynamic";
 type Caption = {
   id: string;
   content: string | null;
-  like_count: number;
-  image: { url: string | null }[] | null;
+  image_id: string;
+};
+
+type ImageRow = {
+  id: string;
+  url: string | null;
 };
 
 export default async function CaptionsPage() {
@@ -19,17 +23,14 @@ export default async function CaptionsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/login");
+  }
 
-    if (!user) {
-      redirect("/login");
-    }
-
+  // Fetch captions (include image_id)
   const { data, error } = await supabase
     .from("captions")
-    .select("id, content, like_count, image:images(url)")
+    .select("id, content, image_id")
     .eq("is_public", true)
     .not("content", "is", null)
     .order("created_datetime_utc", { ascending: false })
@@ -37,11 +38,28 @@ export default async function CaptionsPage() {
 
   const captions = (data ?? []) as Caption[];
 
+  // Fetch image URLs in a second query (more reliable than join)
+  const uniqueImageIds = Array.from(
+    new Set(captions.map((c) => c.image_id).filter(Boolean))
+  );
+
+  let imageUrlById: Record<string, string | null> = {};
+  if (uniqueImageIds.length > 0) {
+    const { data: imagesData } = await supabase
+      .from("images")
+      .select("id, url")
+      .in("id", uniqueImageIds);
+
+    imageUrlById = Object.fromEntries(
+      ((imagesData ?? []) as ImageRow[]).map((img) => [img.id, img.url])
+    );
+  }
+
   // Build vote map for highlighting / skipping voted captions
   const voteMap = new Map<string, 1 | -1>();
   const captionIds = captions.map((c) => c.id);
 
-  if (user && captionIds.length > 0) {
+  if (captionIds.length > 0) {
     const { data: votes } = await supabase
       .from("caption_votes")
       .select("caption_id, vote_value")
@@ -62,7 +80,7 @@ export default async function CaptionsPage() {
             Rate Captions
           </h1>
           <p className="muted" style={{ margin: 0 }}>
-            Logged in as: <strong>{user?.email ?? "Unknown"}</strong>
+            Logged in as: <strong>{user.email ?? "Unknown"}</strong>
           </p>
         </div>
 
@@ -81,6 +99,7 @@ export default async function CaptionsPage() {
         <div style={{ marginTop: 16 }}>
           <VoteButtons
             captions={captions}
+            imageUrlById={imageUrlById}
             initialVoteMap={Object.fromEntries(voteMap.entries())}
           />
         </div>
