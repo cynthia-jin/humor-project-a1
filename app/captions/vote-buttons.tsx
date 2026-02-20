@@ -7,7 +7,7 @@ type Caption = {
   id: string;
   content: string | null;
   like_count: number;
-  image: { url: string | null } | null;
+  image: { url: string | null }[] | null;
 };
 
 export default function VoteButtons({
@@ -106,10 +106,10 @@ export default function VoteButtons({
           placeItems: "center",
         }}
       >
-        {current.image?.url ? (
+        {current.image?.[0]?.url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={current.image.url}
+            src={current.image?.[0]?.url}
             alt="caption"
             style={{
               width: "100%",

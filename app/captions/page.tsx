@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import VoteButtons from "./vote-buttons";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +9,7 @@ type Caption = {
   id: string;
   content: string | null;
   like_count: number;
-  image: { url: string | null } | null;
+  image: { url: string | null }[] | null;
 };
 
 export default async function CaptionsPage() {
@@ -17,6 +18,14 @@ export default async function CaptionsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      redirect("/login");
+    }
 
   const { data, error } = await supabase
     .from("captions")
