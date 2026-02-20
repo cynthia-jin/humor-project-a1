@@ -150,7 +150,7 @@ export default function VoteButtons({
         </button>
 
         <button className="button" onClick={next}>
-          Skip
+          Next
         </button>
       </div>
 
