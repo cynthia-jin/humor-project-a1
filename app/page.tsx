@@ -6,8 +6,8 @@ export default function HomePage() {
       <h1 className="title">Humor Project</h1>
 
       <div className="row">
-        <Link className="button" href="/protected">
-          View Protected Themes Page
+        <Link className="button" href="/captions">
+          Login to Rate Captions
         </Link>
       </div>
     </main>
