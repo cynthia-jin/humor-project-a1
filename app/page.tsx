@@ -6,6 +6,9 @@ export default function HomePage() {
       <h1 className="title">Humor Project</h1>
 
       <div className="row">
+        <Link className="button" href="/upload">
+           Upload Image to Generate Captions
+        </Link>
         <Link className="button" href="/captions">
           Rate Captions
         </Link>
