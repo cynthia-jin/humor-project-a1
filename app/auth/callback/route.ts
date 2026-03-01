@@ -9,5 +9,5 @@ export async function GET(request: Request) {
 
   const supabase = await createSupabaseServerClient();
   await supabase.auth.exchangeCodeForSession(code);
-  return NextResponse.redirect(`${origin}/upload`);
+  return NextResponse.redirect(`${origin}/`);
 }
