@@ -62,7 +62,7 @@
   font-size: 14px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
-  font-family: var(--font-syne, sans-serif);
+  font-family: 'DM Mono', monospace;
   letter-spacing: 0.01em;
 }
 

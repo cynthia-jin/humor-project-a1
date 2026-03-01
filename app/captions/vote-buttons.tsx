@@ -152,9 +152,10 @@ export default function VoteButtons({
           fontWeight: 800,
           fontSize: "clamp(18px, 3vw, 24px)",
           color: "var(--text)",
-          lineHeight: 1.35,
+          lineHeight: 1.5,
           margin: 0,
           letterSpacing: "-0.02em",
+          fontFamily: "'DM Mono', monospace",
         }}>
           {current.content ?? "(no content)"}
         </p>
