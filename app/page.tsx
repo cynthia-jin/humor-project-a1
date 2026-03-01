@@ -11,37 +11,69 @@ export default async function HomePage() {
   } = await supabase.auth.getUser();
 
   return (
-    <main className="container" style={{ minHeight: "70vh", display: "grid", placeItems: "center" }}>
-      <div style={{ width: "100%", maxWidth: 720 }}>
-        <h1 className="title" style={{ marginBottom: 8 }}>
-          Humor Project
-        </h1>
+    <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "20px" }}>
+      <div style={{ width: "100%", maxWidth: 560 }}>
+
+        {/* Logo / wordmark */}
+        <div style={{ marginBottom: 40 }}>
+          <div style={{
+            display: "inline-block",
+            background: "var(--accent)",
+            color: "#0d0d0d",
+            fontWeight: 800,
+            fontSize: 11,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            padding: "3px 10px",
+            borderRadius: 4,
+            marginBottom: 16,
+            fontFamily: "var(--font-dm-mono, monospace)",
+          }}>
+            Humor Project
+          </div>
+          <h1 style={{
+            fontSize: "clamp(32px, 6vw, 54px)",
+            fontWeight: 800,
+            letterSpacing: "-0.04em",
+            lineHeight: 1.05,
+            color: "var(--text)",
+            margin: 0,
+          }}>
+            Caption<br />
+            <span style={{ color: "var(--accent)" }}>everything.</span>
+          </h1>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, background: "var(--border)", marginBottom: 32 }} />
 
         {!user ? (
           <>
-            <p className="muted" style={{ marginTop: 0 }}>
-              Please sign in to upload images, generate captions, and rate captions.
+            <p className="muted" style={{ marginBottom: 24 }}>
+              Sign in to upload images, generate AI captions, and rate them.
             </p>
-
-            <Link className="button" href="/login">
-              Sign in with Google
+            <Link className="button accent" href="/login">
+              Sign in with Google →
             </Link>
           </>
         ) : (
           <>
-            <p className="muted" style={{ marginTop: 0 }}>
-              Signed in as <strong>{user.email ?? "Unknown"}</strong>
+            <p className="muted" style={{ marginBottom: 24 }}>
+              Signed in as <span style={{ color: "var(--text)", fontWeight: 600 }}>{user.email ?? "Unknown"}</span>
             </p>
 
-            <div className="row" style={{ gap: 10, marginTop: 14, flexWrap: "wrap" }}>
-              <Link className="button" href="/upload">
-                Upload + Generate Captions
+            <div style={{ display: "grid", gap: 10 }}>
+              <Link className="button accent" href="/upload" style={{ justifyContent: "space-between" }}>
+                <span>Upload + Generate Captions</span>
+                <span>→</span>
               </Link>
-
-              <Link className="button" href="/captions">
-                Rate Captions
+              <Link className="button" href="/captions" style={{ justifyContent: "space-between" }}>
+                <span>Rate Captions</span>
+                <span>→</span>
               </Link>
+            </div>
 
+            <div style={{ marginTop: 20 }}>
               <SignOutButton />
             </div>
           </>

@@ -17,7 +17,7 @@ export default function SignOutButton() {
         window.location.href = "/";
       }}
     >
-      {loading ? "Signing out..." : "Sign out"}
+      {loading ? "Signing out…" : "Sign out"}
     </button>
   );
 }

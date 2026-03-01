@@ -23,11 +23,8 @@ export default async function CaptionsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
-  // Fetch captions (include image_id)
   const { data, error } = await supabase
     .from("captions")
     .select("id, content, image_id")
@@ -38,7 +35,6 @@ export default async function CaptionsPage() {
 
   const captions = (data ?? []) as Caption[];
 
-  // Fetch image URLs in a second query (more reliable than join)
   const uniqueImageIds = Array.from(
     new Set(captions.map((c) => c.image_id).filter(Boolean))
   );
@@ -55,7 +51,6 @@ export default async function CaptionsPage() {
     );
   }
 
-  // Build vote map for highlighting / skipping voted captions
   const voteMap = new Map<string, 1 | -1>();
   const captionIds = captions.map((c) => c.id);
 
@@ -74,35 +69,44 @@ export default async function CaptionsPage() {
 
   return (
     <main className="container">
-      <div className="row" style={{ justifyContent: "space-between" }}>
+      {/* Nav */}
+      <div className="row" style={{ justifyContent: "space-between", marginBottom: 40 }}>
         <div>
-          <h1 className="title" style={{ marginBottom: 6 }}>
-            Rate Captions
-          </h1>
+          <div style={{
+            fontFamily: "var(--font-dm-mono, monospace)",
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
+            color: "var(--accent)",
+            marginBottom: 8,
+          }}>
+            Rate
+          </div>
+          <h1 className="title">Captions</h1>
           <p className="muted" style={{ margin: 0 }}>
-            Logged in as: <strong>{user.email ?? "Unknown"}</strong>
+            {user.email ?? "Unknown"}
           </p>
         </div>
 
-        <Link className="button" href="/">
-          Home
-        </Link>
+        <div className="row" style={{ gap: 8, alignSelf: "flex-start", marginTop: 4 }}>
+          <Link className="button" href="/upload">Upload</Link>
+          <Link className="button" href="/">Home</Link>
+        </div>
       </div>
+
+      <div style={{ height: 1, background: "var(--border)", marginBottom: 32 }} />
 
       {error ? (
         <p className="error">{error.message}</p>
       ) : captions.length === 0 ? (
-        <p className="muted" style={{ marginTop: 16 }}>
-          No captions found.
-        </p>
+        <p className="muted">No captions found.</p>
       ) : (
-        <div style={{ marginTop: 16 }}>
-          <VoteButtons
-            captions={captions}
-            imageUrlById={imageUrlById}
-            initialVoteMap={Object.fromEntries(voteMap.entries())}
-          />
-        </div>
+        <VoteButtons
+          captions={captions}
+          imageUrlById={imageUrlById}
+          initialVoteMap={Object.fromEntries(voteMap.entries())}
+        />
       )}
     </main>
   );

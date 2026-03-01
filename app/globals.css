@@ -1,105 +1,196 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0d0d0d;
+  --surface: #161616;
+  --surface-2: #1f1f1f;
+  --border: #2a2a2a;
+  --border-light: #333;
+  --text: #f0ede8;
+  --text-muted: #888;
+  --accent: #f5c842;
+  --accent-dim: #c9a030;
+  --error: #ff5b5b;
+  --radius: 10px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+* { box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { background: var(--bg); }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', system-ui, sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* --- Simple app styles (assignment-friendly) --- */
+/* Layout */
 .container {
-  max-width: 900px;
-  margin: 48px auto;
-  padding: 0 16px;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 20px;
 }
 
+/* Typography */
 .title {
-  font-size: 32px;
-  margin: 0 0 10px;
+  font-size: clamp(26px, 4vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin: 0 0 8px;
+  line-height: 1.1;
 }
 
 .muted {
-  color: #666;
+  color: var(--text-muted);
+  font-size: 14px;
   margin: 0 0 14px;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-family: 'DM Mono', monospace;
 }
 
 .hint {
   margin-top: 18px;
-  color: #555;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-family: 'DM Mono', monospace;
 }
 
+.error {
+  color: var(--error);
+  font-weight: 600;
+  font-size: 13px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  text-decoration: none;
+  color: var(--text);
+  background: var(--surface);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  letter-spacing: 0.01em;
+  font-family: 'Syne', sans-serif;
+  white-space: nowrap;
+}
+
+.button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.button.accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0d0d0d;
+}
+
+.button.accent:hover:not(:disabled) {
+  background: var(--accent-dim);
+  border-color: var(--accent-dim);
+  color: #0d0d0d;
+}
+
+.button.secondary {
+  background: transparent;
+  border-color: var(--border-light);
+  color: var(--text-muted);
+}
+
+.button.secondary:hover:not(:disabled) {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+/* Row */
 .row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   align-items: center;
 }
 
-.button {
-  display: inline-block;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  text-decoration: none;
-  color: #111;
-  background: #fff;
-  font-weight: 600;
-  cursor: pointer;
+/* Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
 }
 
-.button:hover {
-  background: #f7f7f7;
-}
-
-.button.secondary {
-  background: #111;
-  color: #fff;
-  border-color: #111;
-}
-
-.button.secondary:hover {
-  background: #222;
-}
-
-.error {
-  color: crimson;
-  font-weight: 600;
-}
-
+/* Table */
 .table {
   border-collapse: collapse;
   width: 100%;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
 }
 
 .table th,
 .table td {
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
   padding: 10px 8px;
+  color: var(--text);
 }
 
 .table th {
-  border-bottom: 1px solid #ddd;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* File input */
+input[type="file"] {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px dashed var(--border-light);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  width: 100%;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+input[type="file"]:hover {
+  border-color: var(--accent);
+}
+
+input[type="file"]::file-selector-button {
+  background: var(--accent);
+  border: none;
+  color: #0d0d0d;
   font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  margin-right: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: var(--accent-dim);
 }

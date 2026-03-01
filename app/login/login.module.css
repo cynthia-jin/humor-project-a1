@@ -1,29 +1,50 @@
 .container {
-  min-height: calc(100vh - 96px);
+  min-height: 100vh;
   display: grid;
   place-items: center;
   padding: 24px 16px;
+  background: var(--bg);
 }
 
 .card {
   width: 100%;
-  max-width: 420px;
-  border: 1px solid #e5e5e5;
-  border-radius: 14px;
-  padding: 18px;
-  background: #fff;
+  max-width: 400px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  background: var(--surface);
+}
+
+.eyebrow {
+  font-family: var(--font-dm-mono, monospace);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 20px;
 }
 
 .title {
   margin: 0 0 8px;
-  font-size: 24px;
-  color: black;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
 }
 
 .subtitle {
-  margin: 0 0 16px;
-  color: #666;
-  line-height: 1.4;
+  margin: 0 0 28px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  font-family: var(--font-dm-mono, monospace);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 28px;
 }
 
 .button {
@@ -32,32 +53,38 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #111;
-  background: #111;
-  color: #fff;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #0d0d0d;
   font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: var(--font-syne, sans-serif);
+  letter-spacing: 0.01em;
 }
 
 .button:hover {
-  background: #222;
+  background: var(--accent-dim);
+  border-color: var(--accent-dim);
 }
 
 .button:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .badge {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   display: grid;
   place-items: center;
-  background: #f2f2f2;
-  color: #111;
+  background: #0d0d0d;
+  color: var(--accent);
   font-weight: 800;
-  border: 1px solid #e5e5e5;
+  font-size: 13px;
+  flex-shrink: 0;
 }

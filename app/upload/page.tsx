@@ -14,7 +14,6 @@ export default async function UploadPage() {
 
   if (!user) redirect("/login");
 
-  // We need the JWT access token to call the staging REST API.
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -24,29 +23,36 @@ export default async function UploadPage() {
 
   return (
     <main className="container">
-      <div className="row" style={{ justifyContent: "space-between" }}>
+      {/* Nav */}
+      <div className="row" style={{ justifyContent: "space-between", marginBottom: 40 }}>
         <div>
-          <h1 className="title" style={{ marginBottom: 6 }}>
-            Upload Image → Generate Captions
-          </h1>
+          <div style={{
+            fontFamily: "var(--font-dm-mono, monospace)",
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
+            color: "var(--accent)",
+            marginBottom: 8,
+          }}>
+            Upload
+          </div>
+          <h1 className="title">Generate Captions</h1>
           <p className="muted" style={{ margin: 0 }}>
-            Logged in as: <strong>{user.email ?? "Unknown"}</strong>
+            {user.email ?? "Unknown"}
           </p>
         </div>
 
-        <div className="row" style={{ gap: 10 }}>
-          <Link className="button" href="/">
-            Home
-          </Link>
-          <Link className="button" href="/captions">
-            Rate Captions
-          </Link>
+        <div className="row" style={{ gap: 8, alignSelf: "flex-start", marginTop: 4 }}>
+          <Link className="button" href="/captions">Rate Captions</Link>
+          <Link className="button" href="/">Home</Link>
         </div>
       </div>
 
-      <div style={{ marginTop: 16 }}>
-        <Uploader accessToken={accessToken} />
-      </div>
+      {/* Divider */}
+      <div style={{ height: 1, background: "var(--border)", marginBottom: 32 }} />
+
+      <Uploader accessToken={accessToken} />
     </main>
   );
 }
