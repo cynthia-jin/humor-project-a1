@@ -13,22 +13,13 @@ export async function voteCaption(captionId: string, voteValue: 1 | -1) {
   if (!user) return { ok: false as const, error: "Must be logged in" };
 
   const profileId = user.id;
-  const now = new Date().toISOString();
 
-  // check if vote exists
-  const { data: existing } = await supabase
-    .from("caption_votes")
-    .select("id")
-    .eq("profile_id", profileId)
-    .eq("caption_id", captionId)
-    .maybeSingle();
-
-  const payload: any = {
+  const payload = {
     profile_id: profileId,
     caption_id: captionId,
     vote_value: voteValue,
-    created_datetime_utc: now,     // ✅ ALWAYS set
-    modified_datetime_utc: now,
+    created_by_user_id: profileId,
+    modified_by_user_id: profileId,
   };
 
   const { error } = await supabase
