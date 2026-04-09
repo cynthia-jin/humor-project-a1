@@ -158,7 +158,7 @@ export default function VoteButtons({
         textAlign: "center",
       }}>
         <p style={{
-          fontWeight: 800,
+          fontWeight: 600,
           fontSize: "clamp(18px, 3vw, 24px)",
           color: "var(--text)",
           lineHeight: 1.5,
