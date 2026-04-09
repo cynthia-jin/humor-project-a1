@@ -280,7 +280,7 @@ export default function Uploader({ accessToken }: { accessToken: string }) {
                 }}>
                   <div style={{
                     fontWeight: 700,
-                    fontSize: 16,
+                    fontSize: 18,
                     color: "var(--text)",
                     lineHeight: 1.4,
                   }}>

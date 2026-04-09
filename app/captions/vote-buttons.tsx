@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { voteCaption } from "./vote-action";
 
 type Caption = {
@@ -26,6 +26,9 @@ export default function VoteButtons({
   const [loading, setLoading] = useState<null | "up" | "down">(null);
   const [msg, setMsg] = useState("");
 
+  const voteMapRef = useRef(voteMap);
+  voteMapRef.current = voteMap;
+
   const current = captions[index];
   const currentVote = current ? (voteMap[current.id] ?? null) : null;
 
@@ -36,7 +39,13 @@ export default function VoteButtons({
 
   function next() {
     setMsg("");
-    setIndex((i) => Math.min(i + 1, captions.length - 1));
+    setIndex((prev) => {
+      const map = voteMapRef.current;
+      for (let i = prev + 1; i < captions.length; i++) {
+        if (map[captions[i].id] == null) return i;
+      }
+      return Math.min(prev + 1, captions.length - 1);
+    });
   }
 
   async function handleVote(v: 1 | -1) {
@@ -155,7 +164,7 @@ export default function VoteButtons({
           lineHeight: 1.5,
           margin: 0,
           letterSpacing: "-0.02em",
-          fontFamily: "'DM Mono', monospace",
+          fontFamily: "'Syne', sans-serif",
         }}>
           {current.content ?? "(no content)"}
         </p>
