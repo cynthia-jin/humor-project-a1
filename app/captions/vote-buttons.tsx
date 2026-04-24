@@ -82,7 +82,7 @@ export default function VoteButtons({
   const progress = Math.round((votedCount / captions.length) * 100);
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", display: "grid", gap: 20 }}>
+    <div style={{ maxWidth: 520, margin: "0 auto", display: "grid", gap: 14 }}>
 
       {/* Progress bar */}
       <div>
@@ -130,6 +130,7 @@ export default function VoteButtons({
         border: "1px solid var(--border)",
         background: "#000",
         aspectRatio: "16/9",
+        maxHeight: 260,
         display: "grid",
         placeItems: "center",
       }}>
@@ -156,14 +157,14 @@ export default function VoteButtons({
         background: "var(--surface)",
         border: "1px solid var(--border)",
         borderRadius: 12,
-        padding: "20px 22px",
+        padding: "14px 18px",
         textAlign: "center",
       }}>
         <p style={{
           fontWeight: 600,
-          fontSize: "clamp(18px, 3vw, 24px)",
+          fontSize: "clamp(15px, 2.2vw, 18px)",
           color: "var(--text)",
-          lineHeight: 1.5,
+          lineHeight: 1.4,
           margin: 0,
           letterSpacing: "-0.02em",
           fontFamily: "'Syne', sans-serif",
