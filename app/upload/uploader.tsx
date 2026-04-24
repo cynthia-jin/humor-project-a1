@@ -16,7 +16,7 @@ const SUPPORTED_TYPES = new Set([
 type CaptionRecord = {
   id?: string;
   content?: string | null;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 const steps = ["presign", "upload", "register", "captions"] as const;
@@ -104,9 +104,9 @@ export default function Uploader({ accessToken }: { accessToken: string }) {
       const captionJson = await captionRes.json();
       setCaptions(Array.isArray(captionJson) ? captionJson : []);
       setBusy(null);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setBusy(null);
-      setError(e?.message ?? "Something went wrong");
+      setError(e instanceof Error ? e.message : "Something went wrong");
     }
   }
 

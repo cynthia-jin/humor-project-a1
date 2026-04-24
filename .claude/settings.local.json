@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls -la /Users/cynthiajin/IdeaProjects/humor-project-a1/*.*)"
+      "Bash(ls -la /Users/cynthiajin/IdeaProjects/humor-project-a1/*.*)",
+      "Bash(npx --no-install tsc --noEmit)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)"
     ]
   }
 }

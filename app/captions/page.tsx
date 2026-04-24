@@ -61,7 +61,7 @@ export default async function CaptionsPage() {
       .eq("profile_id", user.id)
       .in("caption_id", captionIds);
 
-    (votes ?? []).forEach((v: any) => {
+    (votes ?? []).forEach((v: { caption_id: string; vote_value: number }) => {
       const vv = Number(v.vote_value);
       if (vv === 1 || vv === -1) voteMap.set(String(v.caption_id), vv as 1 | -1);
     });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { voteCaption } from "./vote-action";
 
 type Caption = {
@@ -27,7 +27,9 @@ export default function VoteButtons({
   const [msg, setMsg] = useState("");
 
   const voteMapRef = useRef(voteMap);
-  voteMapRef.current = voteMap;
+  useEffect(() => {
+    voteMapRef.current = voteMap;
+  }, [voteMap]);
 
   const current = captions[index];
   const currentVote = current ? (voteMap[current.id] ?? null) : null;
