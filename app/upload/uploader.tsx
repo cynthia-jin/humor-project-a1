@@ -1,16 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 const API_BASE = "https://api.almostcrackd.ai";
 
 const SUPPORTED_TYPES = new Set([
   "image/jpeg",
-  "image/jpg",
   "image/png",
   "image/webp",
   "image/gif",
-  "image/heic",
 ]);
 
 type CaptionRecord = {
@@ -35,6 +33,7 @@ export default function Uploader({ accessToken }: { accessToken: string }) {
   const [captions, setCaptions] = useState<CaptionRecord[] | null>(null);
   const [busy, setBusy] = useState<null | "presign" | "upload" | "register" | "captions">(null);
   const [error, setError] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canGenerate = useMemo(() => !!file && busy === null, [file, busy]);
 
@@ -50,6 +49,7 @@ export default function Uploader({ accessToken }: { accessToken: string }) {
     setFile(null);
     if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
     setLocalPreviewUrl("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   async function generateAll() {
@@ -57,7 +57,7 @@ export default function Uploader({ accessToken }: { accessToken: string }) {
     resetOutputs();
 
     if (!SUPPORTED_TYPES.has(file.type)) {
-      setError(`Unsupported file type: ${file.type || "(unknown)"}. Supported: jpeg/jpg/png/webp/gif/heic`);
+      setError(`Unsupported file type: ${file.type || "(unknown)"}. Supported: jpeg/png/webp/gif`);
       return;
     }
 
@@ -131,8 +131,9 @@ export default function Uploader({ accessToken }: { accessToken: string }) {
           Image file
         </label>
         <input
+          ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic"
+          accept="image/jpeg,image/png,image/webp,image/gif"
           onChange={(e) => {
             const f = e.target.files?.[0] ?? null;
             setFile(f);
@@ -142,7 +143,7 @@ export default function Uploader({ accessToken }: { accessToken: string }) {
           }}
         />
         <p className="muted" style={{ marginTop: 8, marginBottom: 0 }}>
-          jpeg · jpg · png · webp · gif · heic
+          jpeg · png · webp · gif
         </p>
       </div>
 

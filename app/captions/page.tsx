@@ -25,46 +25,69 @@ export default async function CaptionsPage() {
 
   if (!user) redirect("/login");
 
-  const { data, error } = await supabase
-    .from("captions")
-    .select("id, content, image_id")
-    .eq("is_public", true)
-    .not("content", "is", null)
-    .order("created_datetime_utc", { ascending: false })
-    .limit(60);
+  const PAGE_SIZE = 1000;
 
-  const captions = (data ?? []) as Caption[];
+  const captions: Caption[] = [];
+  let captionsError: { message: string } | null = null;
+  for (let page = 0; ; page++) {
+    const from = page * PAGE_SIZE;
+    const { data, error } = await supabase
+      .from("captions")
+      .select("id, content, image_id")
+      .eq("is_public", true)
+      .not("content", "is", null)
+      .order("created_datetime_utc", { ascending: false })
+      .range(from, from + PAGE_SIZE - 1);
+    if (error) {
+      captionsError = error;
+      break;
+    }
+    const rows = (data ?? []) as Caption[];
+    captions.push(...rows);
+    if (rows.length < PAGE_SIZE) break;
+  }
+  const error = captionsError;
 
   const uniqueImageIds = Array.from(
     new Set(captions.map((c) => c.image_id).filter(Boolean))
   );
 
-  let imageUrlById: Record<string, string | null> = {};
+  const imageUrlById: Record<string, string | null> = {};
   if (uniqueImageIds.length > 0) {
-    const { data: imagesData } = await supabase
-      .from("images")
-      .select("id, url")
-      .in("id", uniqueImageIds);
-
-    imageUrlById = Object.fromEntries(
-      ((imagesData ?? []) as ImageRow[]).map((img) => [img.id, img.url])
-    );
+    for (let page = 0; ; page++) {
+      const from = page * PAGE_SIZE;
+      const { data: imagesData, error: imagesError } = await supabase
+        .from("images")
+        .select("id, url")
+        .in("id", uniqueImageIds)
+        .range(from, from + PAGE_SIZE - 1);
+      if (imagesError) break;
+      const rows = (imagesData ?? []) as ImageRow[];
+      rows.forEach((img) => {
+        imageUrlById[img.id] = img.url;
+      });
+      if (rows.length < PAGE_SIZE) break;
+    }
   }
 
   const voteMap = new Map<string, 1 | -1>();
-  const captionIds = captions.map((c) => c.id);
-
-  if (captionIds.length > 0) {
-    const { data: votes } = await supabase
+  const captionIdSet = new Set(captions.map((c) => c.id));
+  for (let page = 0; ; page++) {
+    const from = page * PAGE_SIZE;
+    const { data: votes, error: votesError } = await supabase
       .from("caption_votes")
       .select("caption_id, vote_value")
       .eq("profile_id", user.id)
-      .in("caption_id", captionIds);
-
-    (votes ?? []).forEach((v: { caption_id: string; vote_value: number }) => {
+      .range(from, from + PAGE_SIZE - 1);
+    if (votesError) break;
+    const rows = (votes ?? []) as { caption_id: string; vote_value: number }[];
+    rows.forEach((v) => {
+      const id = String(v.caption_id);
+      if (!captionIdSet.has(id)) return;
       const vv = Number(v.vote_value);
-      if (vv === 1 || vv === -1) voteMap.set(String(v.caption_id), vv as 1 | -1);
+      if (vv === 1 || vv === -1) voteMap.set(id, vv as 1 | -1);
     });
+    if (rows.length < PAGE_SIZE) break;
   }
 
   return (

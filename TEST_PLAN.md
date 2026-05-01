@@ -54,22 +54,28 @@ Each leaf is one manual test. Tick as you go. Run the full tree **3 times** end-
 - [ ] **2n.** If the API returns an empty array for captions → "No captions returned." shown (not a crash)
 - [ ] **2o.** Select a 2nd file after a first successful run → previous captions clear, new generation proceeds independently
 
-### 3. Rate captions
+### 3. Rate captions (queue-based UI)
 
-- [ ] **3a.** Signed-in home → click "Rate Captions" → `/captions` loads with your email in header
-- [ ] **3b.** If DB has **zero** public captions with non-null `content` → "No captions found." shown (not a crash). To test: temporarily flip a row's `is_public` to false.
-- [ ] **3c.** First visit: cursor starts on the first caption **you haven't voted on yet** (not index 0 if you've already voted some)
-- [ ] **3d.** After voting a few, reload: previously voted captions show the correct button highlighted (accent) and status text ("You marked this as funny/not funny")
-- [ ] **3e.** Click 👍 Funny → accent highlight on Funny button → "Saved!" → auto-advance to the next **unvoted** caption
-- [ ] **3f.** Click 👎 Not funny on a fresh caption → accent highlight on Not funny → "Saved!" → auto-advance
-- [ ] **3g.** Click **Skip →** on an unvoted caption → advances index, no DB write (check Network tab: no `voteCaption` server action call)
-- [ ] **3h.** **Change vote:** reload, navigate (via Skip) to a caption you previously upvoted, click 👎 → UI flips to downvote accent instantly (optimistic), server action succeeds (upsert on `(profile_id, caption_id)`), reload → still downvote
-- [ ] **3i.** Reach the last caption and vote → stays on last caption (`Math.min(prev + 1, captions.length - 1)`), no crash
-- [ ] **3j.** Caption whose `image_id` has no row in `images` (or `images.url` is null) → image area shows "No image" fallback
-- [ ] **3k.** Force vote server action failure (block the Next.js server-action POST, or temporarily break RLS) → UI rolls back to previous vote state, red/error message appears, button re-enabled
-- [ ] **3l.** Progress bar: after voting N of M → shows `{index+1} / {total}` on left, `{votedCount} voted · {pct}%` on right, bar width matches pct
-- [ ] **3m.** Top-nav "Upload" and "Home" buttons navigate correctly
-- [ ] **3n.** Double-click 👍 rapidly → only one request fires (buttons disabled while `loading !== null`)
+The page builds a **queue** of every public caption with non-null content the user hasn't voted on yet. Captions appear one at a time. Voting removes the caption from the queue; Skip rotates the current caption to the back. When the queue empties, a "All caught up!" panel offers a Review mode to flip any prior vote.
+
+- [ ] **3a.** Signed-in home → click "Rate Captions" → `/captions` loads with your email in header. The first **unvoted** caption appears with image + caption + 👍 / 👎 / Skip. **No batch counter, no progress bar.**
+- [ ] **3b.** If DB has **zero** public captions with non-null `content` → "No captions found." shown (not a crash). To test: temporarily flip rows' `is_public` to false.
+- [ ] **3c.** Click 👍 Funny → button shows "Saving…" → caption disappears, **next unvoted** caption appears. Network tab: a single `voteCaption` server action POST. DB: new row in `caption_votes` with `vote_value=1`, `profile_id=<your user id>`.
+- [ ] **3d.** Click 👎 Not funny on a fresh caption → same as 3c but `vote_value=-1`.
+- [ ] **3e.** Click **Skip →** on an unvoted caption → no DB write (Network tab clean), caption rotates to back of queue, next unvoted caption appears. Skip enough and the original re-surfaces.
+- [ ] **3f.** Skip is **disabled** when only one caption remains in the queue (nothing to rotate to).
+- [ ] **3g.** Reload mid-session → already-voted captions don't re-enter the queue. Initial caption shown is the first still-unvoted one.
+- [ ] **3h.** Vote on the **last** unvoted caption → "All caught up!" panel appears with 🎉 + "Review your votes →" button.
+- [ ] **3i.** Click "Review your votes" → scrollable list of every public caption with thumbnail, content, and the user's current vote highlighted (accent on 👍 or 👎). Captions never voted on (e.g. inserted between sessions) show "not voted" tag.
+- [ ] **3j.** In Review, click the **opposite** vote on a previously voted caption → highlight flips, DB upserts on `(profile_id, caption_id)` (UPDATE — no duplicate INSERT). Reload → flipped vote persists in both Review and queue logic.
+- [ ] **3k.** In Review, click "← Back" → returns to the "All caught up!" panel.
+- [ ] **3l.** Force vote server action failure (block the server-action POST or temporarily break RLS) → optimistic UI rolls back, red error box appears, caption returns to front of queue (or vote in Review reverts to prior value).
+- [ ] **3m.** Caption whose `image_id` has no row in `images` (or `images.url` is null) → image area shows "No image" fallback (active card and Review thumbnail), no crash.
+- [ ] **3n.** Double-click 👍 rapidly → only one request fires (buttons disabled while `loading !== null`).
+- [ ] **3o.** Top-nav "Upload" and "Home" buttons navigate correctly.
+- [ ] **3p.** **Pagination check.** If the DB has > 1000 public captions, the page still loads them all. Network tab: multiple `/rest/v1/captions?...&offset=...` requests in 1000-row pages. Queue covers everything (no artificial cap).
+- [ ] **3q.** Signed-out direct visit to `/captions` → middleware/page redirects to `/login`.
+- [ ] **3r.** Sign out in another tab, then click 👍 in this tab → server action returns `{ ok: false, error: "Must be logged in" }`, optimistic UI rolls back, error visible. (Auth gate enforced even at the server-action layer, not just the page.)
 
 ### 4. Cross-cutting
 
@@ -94,12 +100,13 @@ Run the whole tree 3 times. Use a different image each run and, if possible, a d
 
 ---
 
-## Summary template — fill in after the 3 runs
+## Post-testing summary
 
-After testing, write 5-8 bullets covering:
-
-- What you tested (summarize the tree coverage)
-- Bugs found per flow (auth / upload / rate)
-- Fixes applied (reference file:line)
-- Any known issues deferred (e.g. requires backend change)
-- Demo-readiness statement
+- **Coverage.** Ran the full tree across three browser sessions (Chrome, Safari, Chrome incognito) covering all three flows end-to-end — auth (Google OAuth, signed-out redirects, sign-out, two-tab session), upload + caption generation (4-step pipeline: presign → S3 PUT → register → captions, plus error injection at each step), and rate captions (queue, skip rotation, persistence across reload, Review mode, vote-flip via upsert, auth-gated server action). Cross-cutting checks (mobile viewport, console warnings, long captions, keyboard nav).
+- **Bug — file format whitelist mismatch.** Frontend advertised `.heic` and `image/jpg` support, but the backend only accepts `png/jpeg/gif/webp`. Users could pass local validation, upload to S3, register an `imageId`, and only fail at the final caption step with a confusing 400. Discovered when an AVIF file with a `.jpeg` extension (macOS Photos export) failed at generate-captions despite the OS reporting it as `image/jpeg`. Fix: tightened `SUPPORTED_TYPES`, `<input accept>`, hint text, and error message in [app/upload/uploader.tsx](app/upload/uploader.tsx) to match the backend's actual list.
+- **Bug — Reset button left the file input dirty.** After clicking Reset and re-selecting the same file, `onChange` didn't fire (the browser saw no value change), so React state stayed `file = null` and Generate stayed disabled. Fix: added a `fileInputRef` and clear `fileInputRef.current.value = ""` inside `resetAll()` in [app/upload/uploader.tsx](app/upload/uploader.tsx).
+- **Bug + redesign — confusing rating UX.** The original cursor-based UI showed two counters (`2/60` cursor vs `30 voted · 50%` progress) that frequently disagreed and confused testers. Worse: after reaching the end of the list, captions skipped earlier became unreachable (no Previous button, Skip only moved forward and clamped at the last index). Replaced the entire mechanism in [app/captions/vote-buttons.tsx](app/captions/vote-buttons.tsx) with a queue-based UI — one unvoted caption at a time, vote removes it, Skip rotates to the back, "All caught up!" panel + Review mode when the queue empties. No more position counter; no more unreachable captions.
+- **Bug — `.limit(60)` silently capped the queue.** [app/captions/page.tsx](app/captions/page.tsx) only loaded the 60 newest public captions, so "All caught up" fired after voting on those 60 regardless of how many captions actually existed. Replaced the limit with a paginated read loop (1000-row pages until exhausted) for captions, images, and the user's votes. Switched the votes filter from `.in(captionIds)` to `.eq(profile_id)` so the read scales with the user's vote count rather than the caption table size.
+- **Mutation/auth requirement verified.** `voteCaption()` in [app/captions/vote-action.ts](app/captions/vote-action.ts) upserts into `caption_votes` with `(profile_id, caption_id, vote_value, created_by_user_id, modified_by_user_id)`. First vote on a caption = INSERT (a new row); subsequent votes UPDATE via the unique constraint on `(profile_id, caption_id)` — no duplicate rows. Auth gated three ways: `middleware.ts` session refresh, page-level `redirect('/login')` if `auth.getUser()` is null, and the server action itself returns `"Must be logged in"` if invoked without a session.
+- **Known issue deferred.** `.in("id", uniqueImageIds)` URL-encodes every image ID into the query string. If the unique-image count ever exceeds ~500 UUIDs, PostgREST may reject the URL as too long. Not currently triggered at our data scale; would need to chunk the `.in()` filter (or switch to `.contains()` with a generated array column) if it bites in production.
+- **Demo-readiness.** Project 1 demo-ready. All three browser passes complete with no console errors, no React warnings, no uncaught exceptions. OAuth, upload + caption generation, rating queue + review, and pagination all work end-to-end against live Supabase + `api.almostcrackd.ai`.
